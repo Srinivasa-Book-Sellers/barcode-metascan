@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BarcodeLookup } from "./barcode-lookup.mjs";
-import { TestSearchProvider } from "./test-search.mjs";
+import { registeredProviders } from "./provider-registry.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../ui_web");
 const staticFiles = new Map([
@@ -19,7 +19,7 @@ function sendJson(response, status, body) {
 }
 
 export function createRequestHandler({ providers } = {}) {
-  const configuredProviders = providers ?? [new TestSearchProvider()];
+  const configuredProviders = providers ?? registeredProviders;
   const barcodeLookup = new BarcodeLookup({ providers: configuredProviders });
 
   return async function handleRequest(request, response) {

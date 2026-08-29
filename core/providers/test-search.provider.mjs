@@ -1,6 +1,7 @@
+import { defineProvider } from "../provider-protocol.mjs";
+
 export class TestSearchProvider {
   constructor({ now = () => new Date() } = {}) {
-    this.name = "Test Search";
     this.now = now;
   }
 
@@ -17,7 +18,7 @@ export class TestSearchProvider {
       category: "Test Category",
       imageUrls: ["https://placehold.co/600x600?text=Test+Sample+Product"],
       sources: [{
-        name: this.name,
+        name: "Test Search",
         url: "local://test-search",
         retrievedAt: resolvedAt,
       }],
@@ -25,3 +26,9 @@ export class TestSearchProvider {
     };
   }
 }
+
+export const provider = defineProvider({
+  id: "test-search",
+  name: "Test Search",
+  create: (options) => new TestSearchProvider(options),
+});

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { TestSearchProvider } from "./test-search.mjs";
+import { TestSearchProvider } from "./providers/test-search.provider.mjs";
 
 test("test search returns sample product details for a barcode", async () => {
   const provider = new TestSearchProvider({

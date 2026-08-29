@@ -30,7 +30,11 @@ Inputs are raw provider fields and normalized barcodes. The primary output is a 
 }
 ```
 
-Required fields are `schemaVersion`, `barcode`, `barcodeFormat`, and `resolvedAt`. `title`, `brand`, `description`, and `imageUrls` may be absent when no trustworthy source resolves them.
+Required fields are `schemaVersion`, `barcode`, `barcodeFormat`, and `resolvedAt`. `title`, `brand`, `description`, `category`, `imageUrls`, and `sources` may be absent when no trustworthy source resolves them. When present, source entries contain `name`, `url`, and `retrievedAt`.
+
+Core validates this normalized response at runtime after every provider lookup. Provider
+adapters must translate their API-specific responses into this contract; raw provider
+responses must never be returned directly to a UI or exporter.
 
 ## Roadmap
 
