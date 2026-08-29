@@ -1,4 +1,5 @@
 const PROVIDER_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
 const STRING_FIELDS = ["title", "brand", "description", "category"];
 
 export class ProviderContractError extends Error {
@@ -39,7 +40,13 @@ export function createProvider(definition, options = {}) {
 }
 
 function assertIsoDate(value, field, providerId) {
-  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
+  const normalizedValue = typeof value === "string" && !value.includes(".")
+    ? value.replace("Z", ".000Z")
+    : value;
+  if (typeof value !== "string"
+    || !ISO_DATE_PATTERN.test(value)
+    || Number.isNaN(Date.parse(value))
+    || new Date(value).toISOString() !== normalizedValue) {
     throw new ProviderContractError(providerId, `${field} must be an ISO date string.`);
   }
 }

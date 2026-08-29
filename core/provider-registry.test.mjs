@@ -3,11 +3,11 @@ import test from "node:test";
 import { defineProvider } from "./provider-protocol.mjs";
 import { discoverProviders, registeredProviders } from "./provider-registry.mjs";
 
-function definition(id) {
+function definition(id, create = () => ({ lookup: async () => ({}) })) {
   return defineProvider({
     id,
     name: id.toUpperCase(),
-    create: () => ({ lookup: async () => ({}) }),
+    create,
   });
 }
 
@@ -51,4 +51,22 @@ test("discovery rejects duplicate provider ids", async () => {
     }),
     /Duplicate provider id "duplicate"/,
   );
+});
+
+test("discovery forwards provider-specific options to factories", async () => {
+  let receivedOptions;
+  const providers = await discoverProviders({
+    directoryUrl: new URL("file:///providers/"),
+    readDirectory: async () => ["configured.provider.mjs"],
+    importProvider: async () => ({
+      provider: definition("configured", (options) => {
+        receivedOptions = options;
+        return { lookup: async () => ({}) };
+      }),
+    }),
+    providerOptions: { configured: { apiKey: "test-key", timeout: 5000 } },
+  });
+
+  assert.deepEqual(receivedOptions, { apiKey: "test-key", timeout: 5000 });
+  assert.equal(providers[0].id, "configured");
 });

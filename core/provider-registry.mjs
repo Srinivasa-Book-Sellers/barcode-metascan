@@ -7,6 +7,7 @@ export async function discoverProviders({
   directoryUrl = new URL("./providers/", import.meta.url),
   readDirectory = readdir,
   importProvider = (url) => import(url.href),
+  providerOptions = {},
 } = {}) {
   const fileNames = (await readDirectory(directoryUrl))
     .filter((fileName) => fileName.endsWith(PROVIDER_FILE_SUFFIX))
@@ -16,7 +17,7 @@ export async function discoverProviders({
   const ids = new Set();
   for (const fileName of fileNames) {
     const module = await importProvider(new URL(fileName, directoryUrl));
-    const provider = createProvider(module.provider);
+    const provider = createProvider(module.provider, providerOptions[module.provider?.id]);
     if (ids.has(provider.id)) {
       throw new TypeError(`Duplicate provider id "${provider.id}".`);
     }

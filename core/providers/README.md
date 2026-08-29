@@ -40,3 +40,7 @@ Only files matching the naming convention are scanned. Startup fails immediately
 matching file does not export a valid definition, creates an invalid provider, or duplicates
 an existing provider ID. Every lookup response is checked at runtime before it reaches the
 HTTP API, so provider-specific response shapes cannot leak into consumers.
+
+Hosts can pass a `providerOptions` object to `discoverProviders()`, keyed by provider ID.
+Each matching value is forwarded to that provider's `create` factory for credentials,
+timeouts, and other provider-specific configuration.
