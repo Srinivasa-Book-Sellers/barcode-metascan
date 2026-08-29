@@ -4,6 +4,7 @@ Here is how you can test them instantly:
 
 * [EAN-Search Live Look-up](https://www.ean-search.org/): Go directly to their homepage. They have a massive search bar right at the top. Grab 5–10 random stationery items from your shop (like a Doms pencil box, a Classmate notebook, and a local gel pen), type the 13-digit barcode number into the search bar, and hit enter. You will immediately see if their database contains the exact text description, category, and image.
 * [Barcode Lookup Search Bar](https://www.barcodelookup.com/): Their main consumer-facing website acts as a live frontend test portal for their API. Paste your barcode into their main search engine. If the product shows up on the website with an image and details, it means it is fully available in their developer JSON API database.
+* [DataKart](https://www.gs1india.org/datakart/datakart-for-retailers)
 
 ## 2. Testing via Postman or Web Browser (5-Minute Developer Setup)
 If you want to see the exact structure of the JSON payload without setting up a coding environment, you can use Postman, Insomnia, or even your standard web browser:
