@@ -10,10 +10,11 @@ export class ApiError extends Error {
   }
 }
 
-export async function getBarcodeDetails(barcode, fetchImpl = globalThis.fetch) {
+export async function getBarcodeDetails(barcode, dataSource = "test-search", fetchImpl = globalThis.fetch) {
   let response;
   try {
-    response = await fetchImpl(`/api/details?barcode=${encodeURIComponent(barcode.trim())}`, {
+    const query = new URLSearchParams({ barcode: barcode.trim(), source: dataSource });
+    response = await fetchImpl(`/api/details?${query}`, {
       headers: { accept: "application/json" },
     });
   } catch (cause) {
@@ -47,14 +48,14 @@ if (typeof document !== "undefined") {
   const form = document.getElementById("barcode-form");
   const barcode = document.getElementById("barcode");
   const details = document.getElementById("details");
-  const submit = document.getElementById("get-details");
+  const dataSource = document.getElementById("data-source");
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    submit.disabled = true;
+    dataSource.disabled = true;
     details.value = "Loading…";
     try {
-      details.value = formatBarcodeDetails(await getBarcodeDetails(barcode.value));
+      details.value = formatBarcodeDetails(await getBarcodeDetails(barcode.value, dataSource.value));
     } catch (error) {
       details.value = formatBarcodeDetails({
         status: "error",
@@ -62,7 +63,7 @@ if (typeof document !== "undefined") {
         error: error instanceof Error ? error.message : "The lookup failed.",
       });
     } finally {
-      submit.disabled = false;
+      dataSource.disabled = false;
     }
   });
 }
