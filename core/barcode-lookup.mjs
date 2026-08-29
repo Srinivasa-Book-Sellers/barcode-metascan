@@ -49,10 +49,17 @@ export class BarcodeLookup {
     this.providers = providers;
   }
 
-  async lookup(value) {
+  async lookup(value, providerId) {
     const barcode = validateBarcode(value);
-    // Additional providers can be tried here when fallback resolution is introduced.
-    const provider = this.providers[0];
+    const provider = providerId
+      ? this.providers.find((candidate) => candidate.id === providerId)
+      : this.providers[0];
+    if (!provider) {
+      throw new BarcodeValidationError(
+        "UNKNOWN_PROVIDER",
+        `Unknown barcode provider "${providerId}".`,
+      );
+    }
     const result = await provider.lookup(barcode);
     return assertProviderResponse(result, {
       barcode,

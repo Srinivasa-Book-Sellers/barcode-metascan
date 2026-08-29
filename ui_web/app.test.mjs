@@ -13,12 +13,16 @@ test("barcode field prompts the user to press Enter", () => {
   assert.doesNotMatch(input, /\svalue="[^"]+"/);
 });
 
-test("the data source list contains only Test Search", () => {
+test("the data source list contains the available providers", () => {
   const select = html.match(/<select\s+[^>]*id="data-source"[^>]*>[\s\S]*?<\/select>/)?.[0];
 
   assert.ok(select, "data source select should exist");
   assert.match(select, /<option value="test-search">Test Search<\/option>/);
-  assert.equal((select.match(/<option\b/g) ?? []).length, 1);
+  assert.match(select, /<option value="upcitemdb">UPCitemdb Trial<\/option>/);
+  assert.match(select, /<option value="open-library">Open Library<\/option>/);
+  assert.match(select, /<option value="open-products-facts">Open Products Facts<\/option>/);
+  assert.match(select, /<option value="wikidata">Wikidata<\/option>/);
+  assert.equal((select.match(/<option\b/g) ?? []).length, 5);
   assert.doesNotMatch(html, />Get Details<\/button>/);
 });
 

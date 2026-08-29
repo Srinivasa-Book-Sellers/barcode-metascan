@@ -36,9 +36,10 @@ export function createRequestHandler({
 
     if (request.method === "GET" && url.pathname === "/api/details") {
       const barcode = url.searchParams.get("barcode");
+      const source = url.searchParams.get("source");
       try {
         const barcodeLookup = await getBarcodeLookup();
-        const details = await barcodeLookup.lookup(barcode);
+        const details = await barcodeLookup.lookup(barcode, source);
         sendJson(response, 200, details);
       } catch (error) {
         const status = Number.isInteger(error?.status) ? error.status : 500;

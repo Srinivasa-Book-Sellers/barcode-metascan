@@ -11,9 +11,15 @@ function definition(id, create = () => ({ lookup: async () => ({}) })) {
   });
 }
 
-test("the test provider is automatically registered", () => {
-  assert.deepEqual(registeredProviders.map(({ id }) => id), ["test-search"]);
-  assert.equal(typeof registeredProviders[0].lookup, "function");
+test("providers are automatically registered", () => {
+  assert.deepEqual(registeredProviders.map(({ id }) => id), [
+    "open-library",
+    "open-products-facts",
+    "test-search",
+    "upcitemdb",
+    "wikidata",
+  ]);
+  assert.ok(registeredProviders.every(({ lookup }) => typeof lookup === "function"));
 });
 
 test("discovery loads only files that follow the provider naming convention", async () => {
