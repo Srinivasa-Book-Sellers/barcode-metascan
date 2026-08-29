@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  scaffold-quality:
+    name: Scaffold quality (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate scaffold documentation
+        shell: bash
+        run: |
+          required_files=(
+            README.md
+            .github/README.md
+            core/README.md
+            models/README.md
+            modules/exporters/README.md
+            ui_windows/README.md
+            ui_android/README.md
+            .github/workflows/ci.yml
+          )
+          for file in "${required_files[@]}"; do
+            test -f "$file"
+          done
+          ! grep -nE '[[:blank:]]+$' $(git ls-files '*.md' '*.yml' '*.yaml')
+          for file in $(git ls-files '*.md'); do
+            grep -q '^# ' "$file"
+          done
