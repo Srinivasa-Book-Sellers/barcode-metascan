@@ -4,7 +4,10 @@ This directory contains automation and GitHub-specific repository configuration.
 
 ## CI/CD
 
-`workflows/ci.yml` runs on pushes and pull requests targeting `main`. It checks required scaffold files, Markdown headings, and trailing whitespace on Ubuntu and Windows runners. Add platform build, test, signing, and release jobs here when executable projects are introduced.
+`workflows/web-check.yml` runs on every pull request, on pushes to `main`, and when
+started manually. It verifies the web entry point and runs the complete Node.js test
+suite on Windows. Add platform build, signing, and release jobs as those projects are
+introduced.
 
 ## Issue and pull request hygiene
 
@@ -12,4 +15,5 @@ Use issues to capture reproducible defects, source-provider requests, exporter m
 
 ## Local quality check
 
-The CI checks are intentionally dependency-free while this repository is a scaffold. Before opening a pull request, ensure required README files exist, use level-one headings, and avoid trailing whitespace.
+The CI checks are dependency-free. Before opening a pull request, run `node --test` and
+ensure the web entry point remains available.

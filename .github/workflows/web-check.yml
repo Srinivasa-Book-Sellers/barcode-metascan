@@ -1,16 +1,9 @@
-name: Web UI check
+name: CI
 
 on:
   push:
-    branches: [main, ui_web]
-    paths:
-      - ui_web/**
-      - .github/workflows/web-check.yml
-  pull_request:
     branches: [main]
-    paths:
-      - ui_web/**
-      - .github/workflows/web-check.yml
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -18,7 +11,7 @@ permissions:
 
 jobs:
   check:
-    name: Check web UI on Windows
+    name: Test on Windows
     runs-on: windows-latest
     steps:
       - name: Check out repository
@@ -36,5 +29,5 @@ jobs:
           if (-not (Select-String -Path ui_web/index.html -SimpleMatch 'Hello, Barcode MetaScan!' -Quiet)) {
             throw "Expected page heading was not found"
           }
-      - name: Test barcode form
-        run: node --test ui_web/app.test.mjs
+      - name: Run tests
+        run: node --test
