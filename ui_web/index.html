@@ -44,11 +44,11 @@
   <body>
     <main>
       <h1>Hello, Barcode MetaScan!</h1>
-      <p>Enter a barcode to prepare its details.</p>
+      <p>Enter a 13-digit EAN barcode to retrieve sample product details.</p>
 
       <form id="barcode-form">
-        <input id="barcode" name="barcode" type="text" placeholder="barcode" aria-label="Barcode" />
-        <button type="submit">Get Details</button>
+        <input id="barcode" name="barcode" type="text" inputmode="numeric" placeholder="barcode" aria-label="Barcode" required />
+        <button id="get-details" type="submit">Get Details</button>
       </form>
 
       <label for="details">JSON details</label>
