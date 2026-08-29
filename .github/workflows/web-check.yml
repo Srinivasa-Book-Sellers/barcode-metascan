@@ -1,8 +1,6 @@
-name: CI
+name: Web UI check
 
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -11,7 +9,7 @@ permissions:
 
 jobs:
   check:
-    name: Test on Windows
+    name: Test web UI on Windows
     runs-on: windows-latest
     steps:
       - name: Check out repository
@@ -29,5 +27,5 @@ jobs:
           if (-not (Select-String -Path ui_web/index.html -SimpleMatch 'Hello, Barcode MetaScan!' -Quiet)) {
             throw "Expected page heading was not found"
           }
-      - name: Run tests
-        run: node --test
+      - name: Test web UI
+        run: node --test ui_web/app.test.mjs

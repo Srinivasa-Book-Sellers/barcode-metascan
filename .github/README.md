@@ -4,9 +4,10 @@ This directory contains automation and GitHub-specific repository configuration.
 
 ## CI/CD
 
-`workflows/web-check.yml` runs on every pull request, on pushes to `main`, and when
-started manually. It verifies the web entry point and runs the complete Node.js test
-suite on Windows. Add platform build, signing, and release jobs as those projects are
+`workflows/core-check.yml` and `workflows/web-check.yml` run independently on every
+pull request and when started manually. The core workflow runs the backend test suite,
+while the web workflow verifies the web entry point and runs the UI tests. Both checks
+run on Windows. Add platform build, signing, and release jobs as those projects are
 introduced.
 
 ## Issue and pull request hygiene
@@ -15,5 +16,6 @@ Use issues to capture reproducible defects, source-provider requests, exporter m
 
 ## Local quality check
 
-The CI checks are dependency-free. Before opening a pull request, run `node --test` and
-ensure the web entry point remains available.
+The CI checks are dependency-free. Before opening a pull request, run
+`node --test "core/**/*.test.mjs"` and `node --test ui_web/app.test.mjs`, and ensure
+the web entry point remains available.
