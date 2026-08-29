@@ -27,7 +27,11 @@
         padding: 0.75rem;
       }
 
-      button {
+      input::placeholder {
+        color: #777;
+      }
+
+      select {
         padding: 0.75rem 1rem;
         cursor: pointer;
       }
@@ -44,11 +48,14 @@
   <body>
     <main>
       <h1>Hello, Barcode MetaScan!</h1>
-      <p>Enter a barcode to prepare its details.</p>
+      <p>Enter a 13-digit EAN barcode to retrieve sample product details.</p>
 
       <form id="barcode-form">
-        <input id="barcode" name="barcode" type="text" placeholder="barcode" aria-label="Barcode" />
-        <button type="submit">Get Details</button>
+        <input id="barcode" name="barcode" type="text" inputmode="numeric" placeholder="Input barcode and press Enter to get details" aria-label="Barcode" required />
+        <label for="data-source" hidden>Data source</label>
+        <select id="data-source" name="dataSource" aria-label="Data source">
+          <option value="test-search">Test Search</option>
+        </select>
       </form>
 
       <label for="details">JSON details</label>

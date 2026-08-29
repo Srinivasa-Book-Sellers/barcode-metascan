@@ -2,14 +2,18 @@
 
 This folder contains the browser interface for Barcode MetaScan. It is a plain HTML page with no framework or build dependencies.
 
-Enter a barcode and select **Get Details** to display it as JSON. This UI-only increment does not make an API request.
+Enter an exact 13-digit barcode and press **Enter** to request deterministic sample metadata from the core API and display its JSON response. The data-source list currently contains only **Test Search**, which makes no external API request.
+
+Lookup failures, including `BARCODE_TOO_SHORT`, `BARCODE_TOO_LONG`, invalid formats,
+and core API connection failures, are displayed in the JSON details field. The source
+selector is disabled while a request is active and is always re-enabled afterward.
 
 ## Run locally
 
-From the repository root, start a local server:
+Start the core server from the repository root:
 
 ```sh
-python3 -m http.server 8080 --directory ui_web
+node core/server.mjs
 ```
 
 Then open <http://localhost:8080> in a browser.
