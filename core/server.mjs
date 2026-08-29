@@ -3,7 +3,6 @@ import { readFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BarcodeLookup } from "./barcode-lookup.mjs";
-import { TestSearchProvider } from "./test-search.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../ui_web");
 const staticFiles = new Map([
@@ -18,9 +17,19 @@ function sendJson(response, status, body) {
   response.end(JSON.stringify(body, null, 2));
 }
 
-export function createRequestHandler({ providers } = {}) {
-  const configuredProviders = providers ?? [new TestSearchProvider()];
-  const barcodeLookup = new BarcodeLookup({ providers: configuredProviders });
+export function createRequestHandler({
+  providers,
+  loadProviders = async () => (await import("./provider-registry.mjs")).registeredProviders,
+} = {}) {
+  let barcodeLookupPromise = providers === undefined
+    ? undefined
+    : Promise.resolve(new BarcodeLookup({ providers }));
+
+  function getBarcodeLookup() {
+    barcodeLookupPromise ??= Promise.resolve(loadProviders())
+      .then((discoveredProviders) => new BarcodeLookup({ providers: discoveredProviders }));
+    return barcodeLookupPromise;
+  }
 
   return async function handleRequest(request, response) {
     const url = new URL(request.url, "http://localhost");
@@ -28,6 +37,7 @@ export function createRequestHandler({ providers } = {}) {
     if (request.method === "GET" && url.pathname === "/api/details") {
       const barcode = url.searchParams.get("barcode");
       try {
+        const barcodeLookup = await getBarcodeLookup();
         const details = await barcodeLookup.lookup(barcode);
         sendJson(response, 200, details);
       } catch (error) {

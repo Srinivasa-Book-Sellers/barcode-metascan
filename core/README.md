@@ -30,14 +30,28 @@ Output: a unified JSON payload:
 }
 ```
 
-## Test Search provider
+## Provider protocol and automatic registration
 
 The common lookup wrapper in `barcode-lookup.mjs` validates every barcode before a
 provider is called. Short and long values return `BARCODE_TOO_SHORT` and
 `BARCODE_TOO_LONG`, respectively. This validation is shared by current and future
 providers.
 
-The initial provider is implemented in `test-search.mjs`. It always returns
+Provider modules live in `providers/` and use the `*.provider.mjs` suffix. The registry
+discovers these modules automatically at startup, validates their exported provider
+definition, and creates them without a manually maintained factory list. Each definition
+declares a stable kebab-case ID, display name, and factory. Each created provider must
+implement `async lookup(barcode)`.
+
+The lookup wrapper validates every provider result against the shared `ProductMetadata`
+contract before returning it to the HTTP API. Invalid responses fail with
+`INVALID_PROVIDER_RESPONSE` rather than exposing provider-specific data to consumers.
+See `providers/README.md` for the provider template and registration rules.
+
+## Test Search provider
+
+The only currently registered provider is implemented in
+`providers/test-search.provider.mjs`. It always returns
 deterministic sample product metadata, including a test title, brand, description,
 category, and image. It makes no external requests and requires no credentials.
 
@@ -53,8 +67,8 @@ Open <http://localhost:8080>, or request the core endpoint directly:
 GET /api/details?barcode=4006381333931
 ```
 
-The HTTP layer accepts a provider list, so real data sources can be added later
-without coupling provider-specific response fields to the web UI.
+The HTTP layer also accepts an explicitly supplied provider list for tests and embedding.
+These providers are subject to the same request and response protocol.
 
 ## Roadmap
 

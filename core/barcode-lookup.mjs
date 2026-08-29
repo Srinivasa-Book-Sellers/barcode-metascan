@@ -1,3 +1,5 @@
+import { assertProviderResponse } from "./provider-protocol.mjs";
+
 const REQUIRED_BARCODE_LENGTH = 13;
 
 export class BarcodeValidationError extends Error {
@@ -39,12 +41,22 @@ export class BarcodeLookup {
     if (!Array.isArray(providers) || providers.length === 0) {
       throw new TypeError("At least one barcode provider is required.");
     }
+    for (const provider of providers) {
+      if (!provider || typeof provider.lookup !== "function") {
+        throw new TypeError("Every barcode provider must implement lookup(barcode).");
+      }
+    }
     this.providers = providers;
   }
 
   async lookup(value) {
     const barcode = validateBarcode(value);
     // Additional providers can be tried here when fallback resolution is introduced.
-    return this.providers[0].lookup(barcode);
+    const provider = this.providers[0];
+    const result = await provider.lookup(barcode);
+    return assertProviderResponse(result, {
+      barcode,
+      providerId: provider.id ?? provider.name ?? "unknown",
+    });
   }
 }
