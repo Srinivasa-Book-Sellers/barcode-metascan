@@ -4,11 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Barcode MetaScan</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2rem;
+      }
+
+      main {
+        max-width: 48rem;
+        margin: 0 auto;
+      }
+
+      form {
+        display: flex;
+        gap: 0.5rem;
+        margin: 2rem 0;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        padding: 0.75rem;
+      }
+
+      button {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+      }
+
+      textarea {
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 16rem;
+        padding: 0.75rem;
+        resize: vertical;
+      }
+    </style>
   </head>
   <body>
     <main>
       <h1>Hello, Barcode MetaScan!</h1>
-      <p>The web interface is running.</p>
+      <p>Enter a barcode to prepare its details.</p>
+
+      <form id="barcode-form">
+        <input id="barcode" name="barcode" type="text" placeholder="barcode" aria-label="Barcode" />
+        <button type="submit">Get Details</button>
+      </form>
+
+      <label for="details">JSON details</label>
+      <textarea id="details" readonly aria-label="JSON details"></textarea>
     </main>
+
+    <script type="module" src="app.mjs"></script>
   </body>
 </html>
