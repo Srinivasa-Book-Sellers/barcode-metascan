@@ -139,7 +139,7 @@ Python 3.10 or later is required. For production Google Books requests, set `GOO
 
 ```powershell
 $env:GOOGLE_BOOKS_API_KEY = "your-key"
-python core/provider_research/barcode_lookup.py 9788184953671 8901860010432
+python provider_research/barcode_lookup.py 9788184953671 8901860010432
 ```
 
 The command emits normalized JSON plus an `attempts` array that distinguishes `not_found` from provider errors such as HTTP 429. This distinction prevents a temporary outage or quota response from being cached as a permanent miss.
@@ -149,7 +149,7 @@ The command emits normalized JSON plus an `attempts` array that distinguishes `n
 When a search service, retailer integration, or user supplies likely product-page URLs, pass each page explicitly:
 
 ```powershell
-python core/provider_research/barcode_lookup.py 8901860010432 `
+python provider_research/barcode_lookup.py 8901860010432 `
   --candidate-url "https://retailer.example/products/flex-kwik"
 ```
 
@@ -160,7 +160,7 @@ This module deliberately does not scrape Google, Bing, or retailer search-result
 Run the offline tests with:
 
 ```powershell
-python -m unittest discover -s core/provider_research -p "test_*.py"
+python -m unittest discover -s provider_research -p "test_*.py"
 ```
 
 Python was not installed in the research environment, so the tests could not be executed here. VS Code static diagnostics reported no errors in either Python file.
