@@ -14,8 +14,6 @@ Then open <http://localhost:8080> in a browser.
 
 Stop the server with `Ctrl+C`.
 
-## GitHub Pages
+## Automated check
 
-The `Deploy web UI` GitHub Actions workflow validates this folder and publishes it to GitHub Pages after a push to `ui_web` or `main` that changes the website. It can also be started manually from the repository's **Actions** tab.
-
-For the first deployment, open **Settings → Pages** in the GitHub repository and ensure **Source** is set to **GitHub Actions**. The deployed URL is shown in the workflow summary.
+The `Web UI check` GitHub Actions workflow verifies that the HTML entry page exists and contains the expected heading. It does not publish or deploy the website.

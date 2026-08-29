@@ -1,0 +1,29 @@
+name: Web UI check
+
+on:
+  push:
+    branches: [main, ui_web]
+    paths:
+      - ui_web/**
+      - .github/workflows/web-check.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - ui_web/**
+      - .github/workflows/web-check.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check static page
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - name: Verify website
+        run: |
+          test -f ui_web/index.html
+          grep -q 'Hello, Barcode MetaScan!' ui_web/index.html
