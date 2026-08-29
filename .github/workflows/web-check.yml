@@ -18,14 +18,23 @@ permissions:
 
 jobs:
   check:
-    name: Check static page
-    runs-on: ubuntu-latest
+    name: Check web UI on Windows
+    runs-on: windows-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
       - name: Verify website
+        shell: pwsh
         run: |
-          test -f ui_web/index.html
-          grep -Fq 'Hello, Barcode MetaScan!' ui_web/index.html
+          if (-not (Test-Path ui_web/index.html -PathType Leaf)) {
+            throw "ui_web/index.html does not exist"
+          }
+          if (-not (Select-String -Path ui_web/index.html -SimpleMatch 'Hello, Barcode MetaScan!' -Quiet)) {
+            throw "Expected page heading was not found"
+          }
       - name: Test barcode form
         run: node --test ui_web/app.test.mjs
