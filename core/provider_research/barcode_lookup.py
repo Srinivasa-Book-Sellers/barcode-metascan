@@ -10,8 +10,10 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
+
+from web_scrape_fallback import ScrapeError, scrape_candidate
 
 
 USER_AGENT = "barcode-metascan/0.1 (metadata lookup prototype)"
@@ -175,7 +177,29 @@ def upcitemdb(barcode: str, timeout: float) -> ProductMetadata | None:
     return None
 
 
-def lookup(barcode_value: str, timeout: float = 10.0) -> dict[str, Any]:
+def structured_web_page(barcode: str, url: str, timeout: float) -> ProductMetadata | None:
+    scraped = scrape_candidate(url, barcode, timeout)
+    if not scraped:
+        return None
+    return ProductMetadata(
+        schemaVersion="1.0",
+        barcode=barcode,
+        barcodeFormat=barcode_format(barcode),
+        title=scraped.title,
+        brand=scraped.brand,
+        description=scraped.description,
+        category=scraped.category,
+        imageUrls=scraped.image_urls,
+        sources=(Source("Structured product page", scraped.source_url, utc_now()),),
+        resolvedAt=utc_now(),
+    )
+
+
+def lookup(
+    barcode_value: str,
+    timeout: float = 10.0,
+    candidate_urls: tuple[str, ...] = (),
+) -> dict[str, Any]:
     barcode = normalize_barcode(barcode_value)
     attempts: list[dict[str, str]] = []
     providers = []
@@ -187,11 +211,19 @@ def lookup(barcode_value: str, timeout: float = 10.0) -> dict[str, Any]:
             ]
         )
     providers.append(("UPCitemdb", lambda: upcitemdb(barcode, timeout)))
+    for url in candidate_urls:
+        host = urlparse(url).hostname or "invalid URL"
+        providers.append(
+            (
+                f"Structured web ({host})",
+                lambda candidate_url=url: structured_web_page(barcode, candidate_url, timeout),
+            )
+        )
 
     for name, provider in providers:
         try:
             product = provider()
-        except ProviderError as error:
+        except (ProviderError, ScrapeError) as error:
             attempts.append({"provider": name, "outcome": "error", "detail": str(error)})
             continue
         if product:
@@ -212,13 +244,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Resolve barcodes to normalized product metadata")
     parser.add_argument("barcodes", nargs="+", help="EAN, UPC, GTIN, or ISBN-13 values")
     parser.add_argument("--timeout", type=float, default=10.0, help="per-provider timeout in seconds")
+    parser.add_argument(
+        "--candidate-url",
+        action="append",
+        default=[],
+        help="public product page to check after API providers; may be repeated",
+    )
     args = parser.parse_args()
 
     results = []
     exit_code = 0
     for value in args.barcodes:
         try:
-            results.append(lookup(value, args.timeout))
+            results.append(lookup(value, args.timeout, tuple(args.candidate_url)))
         except ValueError as error:
             results.append({"barcode": value, "error": str(error)})
             exit_code = 2

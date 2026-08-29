@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import barcode_lookup
+import web_scrape_fallback
 
 
 class BarcodeLookupTests(unittest.TestCase):
@@ -60,6 +61,70 @@ class BarcodeLookupTests(unittest.TestCase):
         self.assertEqual(
             [attempt["outcome"] for attempt in result["attempts"]],
             ["error", "not_found", "exact_match"],
+        )
+
+    def test_structured_page_requires_exact_gtin(self):
+        html = """
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {"@type": "Product", "gtin13": "8901860010431", "name": "Nearby item"},
+            {
+              "@type": "Product",
+              "gtin13": "8901860010432",
+              "name": "Flex Kwik Instant Adhesive",
+              "brand": {"@type": "Brand", "name": "Pidilite"},
+              "description": "Instant adhesive",
+              "category": "Art & Crafting Tools",
+              "image": ["/images/front.jpg"]
+            }
+          ]
+        }
+        </script>
+        """
+
+        product = web_scrape_fallback.extract_product(
+            html, "8901860010432", "https://shop.example/product"
+        )
+
+        self.assertIsNotNone(product)
+        self.assertEqual(product.title, "Flex Kwik Instant Adhesive")
+        self.assertEqual(product.brand, "Pidilite")
+        self.assertEqual(product.category, "Art & Crafting Tools")
+        self.assertEqual(product.image_urls, ("https://shop.example/images/front.jpg",))
+
+    def test_structured_page_rejects_nearby_identifier(self):
+        html = """
+        <script type="application/ld+json">
+        {"@type": "Product", "gtin13": "8901860010431", "name": "Nearby item"}
+        </script>
+        """
+
+        self.assertIsNone(
+            web_scrape_fallback.extract_product(
+                html, "8901860010432", "https://shop.example/product"
+            )
+        )
+
+    @patch("barcode_lookup.scrape_candidate")
+    @patch("barcode_lookup.upcitemdb")
+    def test_lookup_uses_structured_page_after_api_miss(self, upcitemdb, scrape_candidate):
+        upcitemdb.return_value = None
+        scrape_candidate.return_value = web_scrape_fallback.ScrapedProduct(
+            title="Flex Kwik Instant Adhesive",
+            brand="Pidilite",
+            source_url="https://shop.example/product",
+        )
+
+        result = barcode_lookup.lookup(
+            "8901860010432", candidate_urls=("https://shop.example/product",)
+        )
+
+        self.assertEqual(result["product"]["title"], "Flex Kwik Instant Adhesive")
+        self.assertEqual(
+            [attempt["outcome"] for attempt in result["attempts"]],
+            ["not_found", "exact_match"],
         )
 
 

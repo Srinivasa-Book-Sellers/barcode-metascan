@@ -144,6 +144,19 @@ python core/provider_research/barcode_lookup.py 9788184953671 8901860010432
 
 The command emits normalized JSON plus an `attempts` array that distinguishes `not_found` from provider errors such as HTTP 429. This distinction prevents a temporary outage or quota response from being cached as a permanent miss.
 
+### Structured web fallback
+
+When a search service, retailer integration, or user supplies likely product-page URLs, pass each page explicitly:
+
+```powershell
+python core/provider_research/barcode_lookup.py 8901860010432 `
+  --candidate-url "https://retailer.example/products/flex-kwik"
+```
+
+The fallback in [web_scrape_fallback.py](web_scrape_fallback.py) runs only after API providers miss. It fetches public HTTPS pages that permit the configured user agent in `robots.txt`, limits downloads to 2 MB, and parses schema.org `Product` JSON-LD. A record is accepted only when a `gtin`, `gtin8`, `gtin12`, `gtin13`, `gtin14`, `isbn`, or `productID` value exactly matches the scanned barcode. Visible page text, search ranking, SKU values, and similar product names are never treated as proof of identity.
+
+This module deliberately does not scrape Google, Bing, or retailer search-result HTML. "Anywhere online" discovery requires a supported search API or a self-hosted search service to produce candidate URLs; this fallback then verifies those pages. Before enabling a domain in production, review its terms, keep a domain allowlist, add per-domain rate limits, and confirm that storing its text and images is permitted.
+
 Run the offline tests with:
 
 ```powershell
